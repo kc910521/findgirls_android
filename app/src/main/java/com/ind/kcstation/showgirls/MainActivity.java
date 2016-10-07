@@ -83,6 +83,7 @@ public class MainActivity extends Activity
         if (Build.VERSION.SDK_INT >= 19) {
             webViewMain.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         }
+
         webViewMain.getSettings().setJavaScriptEnabled(true);
         webViewMain.setWebViewClient(new DIYWebViewClient());
         webViewMain.loadUrl("http://ck.lchbl.com:3000/show");*/
@@ -127,6 +128,7 @@ public class MainActivity extends Activity
             }
         },this);
         hu.getHttp("http://ck.lchbl.com:3000/item/list/p/1");*/
+        mImageAdapter.notifyDataSetChanged();
         //====other func
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -217,4 +219,5 @@ public class MainActivity extends Activity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }

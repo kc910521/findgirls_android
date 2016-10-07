@@ -6,11 +6,11 @@
     android:layout_height="match_parent" >
 
     <com.ind.kcstation.showgirls.view.NxtPage
-        android:layout_width="200dp"
-        android:layout_height="100dp"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:id="@+id/nxt_pg"
-        custom:titleTextCus="3712"
-        custom:titleTextColorCus="#ff0000"
-        custom:titleTextSizeCus="40sp" />
+        custom:titleTextCus="More ..."
+        custom:titleTextColorCus="#EF0000"
+        custom:titleTextSizeCus="20dp" />
 
 </RelativeLayout>

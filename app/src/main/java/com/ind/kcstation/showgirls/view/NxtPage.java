@@ -9,13 +9,14 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.Toast;
 
 import com.ind.kcstation.showgirls.R;
 
 /**
  * Created by KCSTATION on 2016/10/6.
  */
-public class NxtPage extends View{
+public class NxtPage extends View implements View.OnClickListener{
 
     /**
      * 文本
@@ -94,10 +95,15 @@ public class NxtPage extends View{
     @Override
     protected void onDraw(Canvas canvas)
     {
-        mPaint.setColor(Color.YELLOW);
+        mPaint.setColor(Color.BLACK);
         canvas.drawRect(0, 0, getMeasuredWidth(), getMeasuredHeight(), mPaint);
 
         mPaint.setColor(mTitleTextColor);
         canvas.drawText(mTitleText, getWidth() / 2 - mBound.width() / 2, getHeight() / 2 + mBound.height() / 2, mPaint);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Toast.makeText(v.getContext(),"in working",Toast.LENGTH_SHORT).show();
     }
 }

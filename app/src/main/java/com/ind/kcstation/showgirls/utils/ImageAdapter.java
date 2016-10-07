@@ -13,13 +13,19 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ind.kcstation.showgirls.R;
 import com.ind.kcstation.showgirls.loader.ImageLoader;
 import com.ind.kcstation.showgirls.view.NxtPage;
 
+import java.util.Arrays;
+
 /**
  * Created by KCSTATION on 2016/9/18.
+ *
+ * q
+ * 图片需要雅压缩
  */
 public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollListener {
     /**
@@ -69,6 +75,18 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
         this.inflater = LayoutInflater.from(context);
     }
 
+    public synchronized void appendResource(String [] moreImageUrls){
+        String [] newUrls = new String[moreImageUrls.length+imageThumbUrls.length];
+        int aIdx = 0;
+        for (String url : this.imageThumbUrls){
+            newUrls[aIdx++] = url;
+        }
+        for (String url : moreImageUrls){
+            newUrls[aIdx++] = url;
+        }
+        this.imageThumbUrls = newUrls;
+    }
+
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         //仅当GridView静止时才去下载图片，GridView滑动时取消所有正在下载的任务
@@ -116,6 +134,8 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     }
 
 
+    private int mCount = 0;
+
     LayoutInflater inflater;
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -123,7 +143,20 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
         //RecyclerView.ViewHolder holder;
         EndViewHolder endHolder;
         //ViewHolder holder;
-        Log.i("ERR","A:"+position+",and:"+(this.getCount()-1));
+        //优化反复出现的position==0
+        if (position == 0) {
+            mCount++;
+        }
+        else {
+            mCount = 0;
+        }
+        if (mCount > 1)
+        {
+            Log.v("ERR", "<getView> drop !!!");
+            return convertView;
+        }
+        //==========over
+        Log.i("ERR","A:"+position+",and:"+(this.getCount()-1)+",convertView:"+convertView);
         if (position == this.getCount()-1 ){
             //如果为最后一项
 //            if (convertView == null) {
@@ -131,6 +164,19 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 convertView = inflater.inflate(R.layout.bottom_nxt_pg, parent, false);
                 convertView.setTag(endHolder);
                 endHolder.iv = (NxtPage) convertView.findViewById(R.id.nxt_pg);
+                endHolder.iv.setClickable(true);
+                endHolder.iv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(v.getContext(),"in working2",Toast.LENGTH_SHORT).show();
+                        appendResource(
+                                new String[]{
+                                        "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg"
+                                }
+                        );
+                    }
+                });
+            //需要修改此部分
 //            } else {
 //                Log.i("ERR","TAG::"+(convertView.getTag()));
 //                endHolder = (EndViewHolder) convertView.getTag();
@@ -141,11 +187,11 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
         }else{
             ImageView mImageView;
             final String mImageUrl = imageThumbUrls[position];
-            if(convertView == null){
+            //if(convertView == null){
                 mImageView = new ImageView(context);
-            }else{
-                mImageView = (ImageView) convertView;
-            }
+//            }else{
+//                mImageView = (ImageView) convertView;
+//            }
             DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
             int width = (int) (dm.widthPixels);
 
@@ -194,7 +240,6 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                     if(mImageView != null && bitmap != null){
                         mImageView.setImageBitmap(bitmap);
                     }
-
                 }
             });
             //ck new release
