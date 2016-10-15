@@ -101,6 +101,8 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg"
     };
 
+    public static int NOW_PAGE = 1;
+
     public ImageAdapter(Context context, GridView mGridView,Handler refeshGridview){
         this.context = context;
         this.mGridView = mGridView;
@@ -140,7 +142,6 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
 
                 imgSource = replaceBlank(imgSource);
                 imgSource = imgSource.replaceAll("/n","");
-                imgSource = imgSource.replaceAll("/n","");
                 System.out.println("11:"+imgSource+"!!");
                 List<ImagerVO> imgvos = JSONArray.parseArray(imgSource,ImagerVO.class);
                 if (imgvos != null && !imgvos.isEmpty()){
@@ -167,7 +168,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 return null;
             }
         },context);
-        hu.getHttp("http://ck.lchbl.com:3000/item/list/p/1");
+        hu.getHttp("http://ck.lchbl.com:3000/item/list/p/"+(NOW_PAGE++));
         //ImageAdapter.imageThumbUrls = moreImageUrls;
     }
 
@@ -321,6 +322,9 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
         for(int i=firstVisibleItem; i<firstVisibleItem + visibleItemCount && i < imageThumbUrls.length; i++){
             String mImageUrl = imageThumbUrls[i];
             final ImageView mImageView = (ImageView) mGridView.findViewWithTag(mImageUrl);
+            if (mImageView == null){
+                return;
+            }
             bitmap = mImageDownLoader.downloadImage(mImageUrl, new ImageLoader.onImageLoaderListener() {
                 @Override
                 public void onImageLoader(Bitmap bitmap, String url) {
