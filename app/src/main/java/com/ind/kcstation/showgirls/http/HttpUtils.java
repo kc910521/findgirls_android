@@ -50,14 +50,15 @@ public class HttpUtils {
 
             @Override
             public void onResponse(Response response) throws IOException {
-                try {
-                    if(response.isSuccessful()){
-                        //The call was successful. print it to the log
-                        Log.v("OKHttp",response.body().string());
-                        httpFuncion.doWork(response, context);
-                    }
-                }catch (IOException e) {
-                    e.printStackTrace();
+//                try {
+//
+//                }catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+                if(response.isSuccessful()){
+                    //The call was successful. print it to the log
+                    //Log.v("OKHttp",response.body().string());
+                    httpFuncion.doWork(response, context);
                 }
             }
         });

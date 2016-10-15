@@ -2,6 +2,10 @@ package com.ind.kcstation.showgirls.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -15,11 +19,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.ind.kcstation.showgirls.R;
+import com.ind.kcstation.showgirls.http.HttpFuncion;
+import com.ind.kcstation.showgirls.http.HttpUtils;
 import com.ind.kcstation.showgirls.loader.ImageLoader;
 import com.ind.kcstation.showgirls.view.NxtPage;
+import com.ind.kcstation.showgirls.vo.ImagerVO;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by KCSTATION on 2016/9/18.
@@ -36,8 +54,8 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     /**
      * Image Url的数组
      */
-    private String [] imageThumbUrls;
-
+    //private String [] imageThumbUrls;
+    private Handler refeshGridview;
     /**
      * GridView对象的应用
      */
@@ -64,27 +82,93 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
      */
     private int mVisibleItemCount;
 
+    public static String [] imageThumbUrls = {
+            "http://pic1.win4000.com/wallpaper/3/512ec5a1c9d1e.jpg",
+            "http://imgsrc.baidu.com/forum/pic/item/2cf5e0fe9925bc3121ee29195edf8db1ca1370fb.jpg",
+            "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000" +
+                    "&sec=1474793859&di=d6741cae026e2dff3123e158dd8287af&src=http://i0.sinaimg.cn/gm/2014/1216/U4341P115DT20141216145353.jpg",
+            "http://www.k73.com/up/allimg/120510/22-1205101003133P.jpg",
+            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+            "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
+            "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
+            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
+            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
+            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg"
+    };
 
-    public ImageAdapter(Context context, GridView mGridView, String [] imageThumbUrls){
+    public ImageAdapter(Context context, GridView mGridView,Handler refeshGridview){
         this.context = context;
         this.mGridView = mGridView;
-        this.imageThumbUrls = imageThumbUrls;
+        //this.imageThumbUrls = imageThumbUrls;
+        this.refeshGridview = refeshGridview;
         mImageDownLoader = new ImageLoader(context);
         mGridView.setOnScrollListener(this);
         //ll
         this.inflater = LayoutInflater.from(context);
     }
 
-    public synchronized void appendResource(String [] moreImageUrls){
-        String [] newUrls = new String[moreImageUrls.length+imageThumbUrls.length];
-        int aIdx = 0;
-        for (String url : this.imageThumbUrls){
-            newUrls[aIdx++] = url;
-        }
-        for (String url : moreImageUrls){
-            newUrls[aIdx++] = url;
-        }
-        this.imageThumbUrls = newUrls;
+    public synchronized void appendResource(){
+//        String [] newUrls = new String[moreImageUrls.length+imageThumbUrls.length];
+//        int aIdx = 0;
+//        for (String url : this.imageThumbUrls){
+//            newUrls[aIdx++] = url;
+//        }
+//        for (String url : moreImageUrls){
+//            newUrls[aIdx++] = url;
+//        }
+//        this.imageThumbUrls = newUrls;
+        HttpUtils hu = HttpUtils.getInstance(new HttpFuncion() {
+            @Override
+            public Object doWork(Response response, Context _context) {
+                Looper.prepare();
+                Message msg = new Message();
+                Bundle bd = new Bundle();
+               // Log.i("key3",response.body().toString());
+                ResponseBody responseBody = response.body();
+
+                if (responseBody.contentLength() == 0){
+                    Looper.loop();
+                    return null;
+                }
+                InputStream isis = responseBody.byteStream();
+                String imgSource = convertStreamToString(isis);
+
+                imgSource = replaceBlank(imgSource);
+                imgSource = imgSource.replaceAll("/n","");
+                imgSource = imgSource.replaceAll("/n","");
+                System.out.println("11:"+imgSource+"!!");
+                List<ImagerVO> imgvos = JSONArray.parseArray(imgSource,ImagerVO.class);
+                if (imgvos != null && !imgvos.isEmpty()){
+                    imageThumbUrls = new String[imgvos.size()];
+                    for (int idx = 0; idx < imgvos.size(); idx ++){
+                        imageThumbUrls[idx] = imgvos.get(idx).getImg();
+                    }
+                }
+
+                bd.putCharSequence("key",imgSource);
+                try {
+                    isis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                bd.putCharSequence("key",imgSource);
+                msg.setData(bd);
+                context = _context;
+                Toast.makeText(context,imgSource+"67777777",Toast.LENGTH_SHORT).show();
+                refeshGridview.sendMessage(msg);
+
+                Looper.loop();
+                return null;
+            }
+        },context);
+        hu.getHttp("http://ck.lchbl.com:3000/item/list/p/1");
+        //ImageAdapter.imageThumbUrls = moreImageUrls;
     }
 
     @Override
@@ -113,7 +197,15 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             isFirstEnter = false;
         }
     }
-
+    public static String replaceBlank(String str) {
+        String dest = "";
+        if (str!=null) {
+            Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+            Matcher m = p.matcher(str);
+            dest = m.replaceAll("");
+        }
+        return dest;
+    }
 
 
     @Override
@@ -169,11 +261,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                     @Override
                     public void onClick(View v) {
                         Toast.makeText(v.getContext(),"in working2",Toast.LENGTH_SHORT).show();
-                        appendResource(
-                                new String[]{
-                                        "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg"
-                                }
-                        );
+                        appendResource();
                     }
                 });
             //需要修改此部分
@@ -234,7 +322,6 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             String mImageUrl = imageThumbUrls[i];
             final ImageView mImageView = (ImageView) mGridView.findViewWithTag(mImageUrl);
             bitmap = mImageDownLoader.downloadImage(mImageUrl, new ImageLoader.onImageLoaderListener() {
-
                 @Override
                 public void onImageLoader(Bitmap bitmap, String url) {
                     if(mImageView != null && bitmap != null){
@@ -255,6 +342,43 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img));
             }
         }
+    }
+
+    public String convertStreamToString(InputStream is) {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+        StringBuilder sb = new StringBuilder();
+
+
+
+        String line = null;
+
+        try {
+
+            while ((line = reader.readLine()) != null) {
+
+                sb.append(line + "/n");
+
+            }
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+
+                is.close();
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+
     }
 
     /**

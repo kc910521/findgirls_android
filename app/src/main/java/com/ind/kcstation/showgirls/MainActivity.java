@@ -40,35 +40,21 @@ public class MainActivity extends Activity
 //    private WebView webViewMain;
 
     private GridView mGridView;
-    private String [] imageThumbUrls = {
-            "http://pic1.win4000.com/wallpaper/3/512ec5a1c9d1e.jpg",
-            "http://imgsrc.baidu.com/forum/pic/item/2cf5e0fe9925bc3121ee29195edf8db1ca1370fb.jpg",
-            "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000" +
-                    "&sec=1474793859&di=d6741cae026e2dff3123e158dd8287af&src=http://i0.sinaimg.cn/gm/2014/1216/U4341P115DT20141216145353.jpg",
-            "http://www.k73.com/up/allimg/120510/22-1205101003133P.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
-            "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
-            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
-            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg"
-    };
+    //http://ck.lchbl.com:3000/item/list/p/1
+
     private ImageAdapter mImageAdapter;
 //    private FileUtils fileUtils;
 
-/*    Handler imgHandler = new Handler(){
+    private Handler refeshGridview = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            mImageAdapter = new ImageAdapter(context, mGridView, imageThumbUrls);
+            //重新刷新gridview区域
+            mImageAdapter = new ImageAdapter(mGridView.getContext(), mGridView, this);
             mGridView.setAdapter(mImageAdapter);
+            mImageAdapter.notifyDataSetChanged();
             super.handleMessage(msg);
         }
-    };*/
+    };
 
     //private Context context = null;
 
@@ -89,7 +75,7 @@ public class MainActivity extends Activity
         webViewMain.loadUrl("http://ck.lchbl.com:3000/show");*/
 //        fileUtils = new FileUtils(this);
         mGridView = (GridView) findViewById(R.id.gv_img_main);
-        mImageAdapter = new ImageAdapter(this, mGridView, imageThumbUrls);
+        mImageAdapter = new ImageAdapter(this, mGridView, refeshGridview);
         mGridView.setAdapter(mImageAdapter);
 //        mGridView.setOnScrollListener(
 //                new AbsListView.OnScrollListener() {
@@ -111,7 +97,8 @@ public class MainActivity extends Activity
 //        );
 
 
-/*        HttpUtils hu = HttpUtils.getInstance(new HttpFuncion() {
+/*
+        HttpUtils hu = HttpUtils.getInstance(new HttpFuncion() {
             @Override
             public Object doWork(Response response, Context _context) {
                 Looper.prepare();
