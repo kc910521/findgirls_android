@@ -113,7 +113,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
         //ll
         this.inflater = LayoutInflater.from(context);
     }
-
+    HttpUtils hu = null;
     public synchronized void appendResource(){
 //        String [] newUrls = new String[moreImageUrls.length+imageThumbUrls.length];
 //        int aIdx = 0;
@@ -124,15 +124,18 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
 //            newUrls[aIdx++] = url;
 //        }
 //        this.imageThumbUrls = newUrls;
-        HttpUtils hu = HttpUtils.getInstance(new HttpFuncion() {
+        Log.i("check4","in appendResource()");
+        hu = HttpUtils.getInstance(new HttpFuncion() {
             @Override
             public Object doWork(Response response, Context _context) {
+                Log.i("check4","in HttpUtils doWork");
                 Looper.prepare();
+                Log.i("check4","in HttpUtils Looper prepare");
                 Message msg = new Message();
                 Bundle bd = new Bundle();
                // Log.i("key3",response.body().toString());
                 ResponseBody responseBody = response.body();
-
+                Log.i("check4","in HttpUtils responseBody.contentLength():"+responseBody.contentLength());
                 if (responseBody.contentLength() == 0){
                     Looper.loop();
                     return null;
@@ -165,6 +168,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 refeshGridview.sendMessage(msg);
 
                 Looper.loop();
+                Log.i("check4","doWork over");
                 return null;
             }
         },context);

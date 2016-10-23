@@ -23,7 +23,8 @@ public class HttpUtils {
     private Context context = null;
 
     private HttpUtils(HttpFuncion httpFuncion,Context context){
-        this.okHttpClient = new OkHttpClient();
+        //this.okHttpClient = new OkHttpClient();
+        //that may cause no response in function call.enqueue(new Callback())
         this.httpFuncion = httpFuncion;
         this.context = context;
     }
@@ -41,20 +42,16 @@ public class HttpUtils {
         Request request = new Request.Builder()
                 .url(tarUrl)
                 .build();
-        Call call  = okHttpClient.newCall(request);
+        Log.i("check4","tarUrl:"+tarUrl);
+        Call call  = new OkHttpClient().newCall(request);
         call.enqueue(new Callback(){
             @Override
             public void onFailure(Request request, IOException e) {
-                Log.v("OKHttp","fail in:"+e.toString());
+                Log.i("check4","fail in:"+e.toString());
             }
-
             @Override
             public void onResponse(Response response) throws IOException {
-//                try {
-//
-//                }catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                Log.i("check4","response.isSuccessful():"+response.isSuccessful()+",");
                 if(response.isSuccessful()){
                     //The call was successful. print it to the log
                     //Log.v("OKHttp",response.body().string());
