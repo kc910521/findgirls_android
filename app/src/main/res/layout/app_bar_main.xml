@@ -6,32 +6,43 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:fitsSystemWindows="true"
-    tools:context="com.ind.kcstation.showgirls.MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:context="com.ind.kcstation.showgirls.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:padding="0px"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:layout_marginTop="1dp"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" >
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="SHOW GIRLS"
-                />
-        </android.support.v7.widget.Toolbar>
+        <!--<android.support.v7.widget.Toolbar-->
+            <!--android:id="@+id/toolbar"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_marginTop="1dp"-->
+            <!--android:background="?attr/colorPrimary"-->
+            <!--app:popupTheme="@style/AppTheme.Base" >-->
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="@string/app_name"-->
+                <!--/>-->
+        <!--</android.support.v7.widget.Toolbar>-->
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabs_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabIndicatorColor="#FFFFFF"
+        app:tabSelectedTextColor="#FFFFFF"
+        app:tabTextColor="#AA87A5"/>
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <!--<include layout="@layout/content_main" />-->
+    <RelativeLayout
+        android:id="@+id/main_client"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

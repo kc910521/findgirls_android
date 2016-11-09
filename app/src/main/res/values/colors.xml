@@ -2,7 +2,9 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent_dark">#FF0261</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent_light">#FF6271</color>
     <color name="ind_color_lure_red">#FFed0000</color>
     <color name="ind_color_lure_red_dark">#EEFE0000</color>
 </resources>

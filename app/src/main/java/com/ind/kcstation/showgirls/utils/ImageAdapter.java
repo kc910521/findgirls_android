@@ -81,24 +81,26 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
      * 一屏中所有item的个数
      */
     private int mVisibleItemCount;
-
+    /**
+     *             "http://pic1.win4000.com/wallpaper/3/512ec5a1c9d1e.jpg",
+     "http://imgsrc.baidu.com/forum/pic/item/2cf5e0fe9925bc3121ee29195edf8db1ca1370fb.jpg",
+     "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000" +
+     "&sec=1474793859&di=d6741cae026e2dff3123e158dd8287af&src=http://i0.sinaimg.cn/gm/2014/1216/U4341P115DT20141216145353.jpg",
+     "http://www.k73.com/up/allimg/120510/22-1205101003133P.jpg",
+     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+     "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
+     "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
+     "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
+     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
+     "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
+     "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg"
+     */
     public static String [] imageThumbUrls = {
-            "http://pic1.win4000.com/wallpaper/3/512ec5a1c9d1e.jpg",
-            "http://imgsrc.baidu.com/forum/pic/item/2cf5e0fe9925bc3121ee29195edf8db1ca1370fb.jpg",
-            "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000" +
-                    "&sec=1474793859&di=d6741cae026e2dff3123e158dd8287af&src=http://i0.sinaimg.cn/gm/2014/1216/U4341P115DT20141216145353.jpg",
-            "http://www.k73.com/up/allimg/120510/22-1205101003133P.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
-            "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
-            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
-            "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg"
+           // "http://pic1.win4000.com/wallpaper/3/512ec5a1c9d1e.jpg"
     };
 
     public static int NOW_PAGE = 1;
@@ -164,7 +166,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 bd.putCharSequence("key",imgSource);
                 msg.setData(bd);
                 context = _context;
-                Toast.makeText(context,imgSource+"67777777",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context,imgSource+"67777777",Toast.LENGTH_SHORT).show();
                 refeshGridview.sendMessage(msg);
 
                 Looper.loop();
@@ -237,6 +239,10 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
+        if (imageThumbUrls.length == 0){
+            convertView = inflater.inflate(R.layout.bottom_nxt_pg, parent, false);
+            return convertView;
+        }
         //RecyclerView.ViewHolder holder;
         EndViewHolder endHolder;
         //ViewHolder holder;
@@ -265,7 +271,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 endHolder.iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(v.getContext(),"in working2",Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(v.getContext(),"in working2",Toast.LENGTH_SHORT).show();
                         appendResource();
                     }
                 });
@@ -288,21 +294,22 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
             int width = (int) (dm.widthPixels);
 
-            mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+
 
             //给ImageView设置Tag,这里已经是司空见惯了
             mImageView.setTag(mImageUrl);
             /*******************************去掉下面这几行试试是什么效果****************************/
             Bitmap bitmap = mImageDownLoader.showCacheBitmap(mImageUrl.replaceAll("[^\\w]", ""));
             if(bitmap != null){
+                mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
                 int bHeight =(int) (bitmap.getHeight()*((float)width/(float)bitmap.getWidth()));
-                Log.i("img","1height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
+                Log.i("img",mImageUrl+",1height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
                 mImageView.setLayoutParams(new GridView.LayoutParams(width, bHeight<1?200:bHeight ));
                 mImageView.setImageBitmap(bitmap);
 
             }else{
-
-                //mImageView.setLayoutParams(new GridView.LayoutParams(width, 200));
+                mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                mImageView.setLayoutParams(new GridView.LayoutParams(width, 1000));
                 mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img));
             }
             /**********************************************************************************/
@@ -337,16 +344,19 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                     }
                 }
             });
+            DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
+            int width = (int) (dm.widthPixels);
             //ck new release
             if(bitmap != null){
-                DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
-                int width = (int) (dm.widthPixels);
                 int bHeight =(int) (bitmap.getHeight()*((float)width/(float)bitmap.getWidth()));
-                Log.i("img","2height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
+                mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                Log.i("img",mImageUrl+",2height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
                 mImageView.setLayoutParams(new GridView.LayoutParams(width, bHeight<1?200:bHeight ));
                 mImageView.setImageBitmap(bitmap);
                 //mImageView.setImageBitmap(bitmap);
             }else{
+                mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                mImageView.setLayoutParams(new GridView.LayoutParams(width, 1000));
                 mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img));
             }
         }
