@@ -1,8 +1,9 @@
 package com.ind.kcstation.showgirls;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,6 +11,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,11 +21,19 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.GridView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
-import com.ind.kcstation.showgirls.utils.ImageAdapter;
+import com.alibaba.fastjson.JSONObject;
+import com.ind.kcstation.showgirls.http.HttpFuncion;
+import com.ind.kcstation.showgirls.http.HttpUtils;
 import com.ind.kcstation.showgirls.utils.MPageAdapter;
+import com.ind.kcstation.showgirls.vo.InitInfo;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -52,7 +62,16 @@ public class MainActivity extends AppCompatActivity
         }
     };*/
 
+    private Handler handler4Imgs = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            initFragmentView(0);
+            super.handleMessage(msg);
+        }
+    };
     //private Context context = null;
+
+    public static volatile int[] pageArrays = {};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +89,49 @@ public class MainActivity extends AppCompatActivity
         webViewMain.setWebViewClient(new DIYWebViewClient());
         webViewMain.loadUrl("http://ck.lchbl.com:3000/show");*/
 //        fileUtils = new FileUtils(this);
+
+
         mTabLayout = (TabLayout) findViewById(R.id.tabs_main);
         container = (RelativeLayout) findViewById(R.id.main_client);
         mPageAdapter = new MPageAdapter(this.getSupportFragmentManager());
 
         this.initTabLayout(mTabLayout);
-        initFragmentView(0);
+
+        //initialize app information
+        HttpUtils hu = null;
+        hu = HttpUtils.getInstance(new HttpFuncion() {
+            @Override
+            public Object doWork(Response response, Context _context) {
+                Log.i("check4","in HttpUtils doWork");
+                Looper.prepare();
+                Log.i("check4","in HttpUtils Looper prepare");
+                // Log.i("key3",response.body().toString());
+                ResponseBody responseBody = response.body();
+                Log.i("check4","in HttpUtils responseBody.contentLength():"+responseBody.contentLength());
+                if (responseBody.contentLength() == 0){
+                    Looper.loop();
+                    return null;
+                }
+                InputStream isis = responseBody.byteStream();
+                String imgSource = HttpUtils.convertStreamToString(isis);
+                Log.i("check4",imgSource);
+                InitInfo iiObj = JSONObject.parseObject(imgSource,InitInfo.class);
+                if (iiObj != null && iiObj.getPgArray() != null && iiObj.getPgArray().length > 0){
+                    MainActivity.pageArrays = iiObj.getPgArray();
+                    handler4Imgs.sendEmptyMessage(0);
+                }
+                try {
+                    isis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Looper.loop();
+                Log.i("check4","doWork over");
+                return null;
+            }
+        },this);
+        hu.getHttp("http://ck.lchbl.com:3000/show/init");
+
 //        mGridView = (GridView) findViewById(R.id.gv_img_main);
 //        mImageAdapter = new ImageAdapter(this, mGridView, refeshGridview);
 //        mGridView.setAdapter(mImageAdapter);
@@ -231,6 +287,23 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private long exitTime = 0;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN){
+            if((System.currentTimeMillis()-exitTime) > 2000){
+                Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+                System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 }

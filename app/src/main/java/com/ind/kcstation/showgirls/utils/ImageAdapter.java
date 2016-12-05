@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.ind.kcstation.showgirls.MainActivity;
 import com.ind.kcstation.showgirls.R;
 import com.ind.kcstation.showgirls.http.HttpFuncion;
 import com.ind.kcstation.showgirls.http.HttpUtils;
@@ -34,7 +35,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,11 +102,11 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
      "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
      "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg"
      */
-    public static String [] imageThumbUrls = {
-           // "http://pic1.win4000.com/wallpaper/3/512ec5a1c9d1e.jpg"
-    };
+    //public static String [] imageThumbUrls = {};
 
-    public static int NOW_PAGE = 1;
+    public static List<ImagerVO> images = new ArrayList<ImagerVO>();
+
+    public static int NOW_PAGE_IDX = 0;
 
     public ImageAdapter(Context context, GridView mGridView,Handler refeshGridview){
         this.context = context;
@@ -143,17 +146,18 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                     return null;
                 }
                 InputStream isis = responseBody.byteStream();
-                String imgSource = convertStreamToString(isis);
+                String imgSource = HttpUtils.convertStreamToString(isis);
 
-                imgSource = replaceBlank(imgSource);
-                imgSource = imgSource.replaceAll("/n","");
+                //imgSource = replaceBlank(imgSource);
                 System.out.println("11:"+imgSource+"!!");
                 List<ImagerVO> imgvos = JSONArray.parseArray(imgSource,ImagerVO.class);
                 if (imgvos != null && !imgvos.isEmpty()){
-                    imageThumbUrls = new String[imgvos.size()];
+                    images = new ArrayList<ImagerVO>(imgvos.size());
+                    images.addAll(imgvos);
+/*                    imageThumbUrls = new String[imgvos.size()];
                     for (int idx = 0; idx < imgvos.size(); idx ++){
                         imageThumbUrls[idx] = imgvos.get(idx).getImg();
-                    }
+                    }*/
                 }
 
                 bd.putCharSequence("key",imgSource);
@@ -174,8 +178,15 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 return null;
             }
         },context);
-        hu.getHttp("http://ck.lchbl.com:3000/item/list/p/"+(NOW_PAGE++));
+        hu.getHttp("http://ck.lchbl.com:3000/item/list/p/"+this.getPager(NOW_PAGE_IDX++));
         //ImageAdapter.imageThumbUrls = moreImageUrls;
+    }
+
+    private int getPager(int pgIdx){
+        if (MainActivity.pageArrays.length > pgIdx){
+            return MainActivity.pageArrays[pgIdx];
+        }
+        return 1;
     }
 
     @Override
@@ -204,27 +215,19 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             isFirstEnter = false;
         }
     }
-    public static String replaceBlank(String str) {
-        String dest = "";
-        if (str!=null) {
-            Pattern p = Pattern.compile("\\s*|\t|\r|\n");
-            Matcher m = p.matcher(str);
-            dest = m.replaceAll("");
-        }
-        return dest;
-    }
+
 
 
     @Override
     public int getCount() {
         // 后面多加一个尾巴，所以适配器长度得加一
-        return imageThumbUrls.length+1;
+        return images.size()+1;
     }
 
     @Override
     public Object getItem(int position) {
         Log.i("pic","pos:"+position);
-        return imageThumbUrls[position];
+        return images.get(position);
     }
 
     @Override
@@ -239,7 +242,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if (imageThumbUrls.length == 0){
+        if (images.isEmpty()){
             convertView = inflater.inflate(R.layout.bottom_nxt_pg, parent, false);
             return convertView;
         }
@@ -285,9 +288,10 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             //endHolder.tv.setText("footer");
         }else{
             ImageView mImageView;
-            final String mImageUrl = imageThumbUrls[position];
+            ImagerVO imgVo = images.get(position);
+            //final String mImageUrl = .getImg();
             //if(convertView == null){
-                mImageView = new ImageView(context);
+            mImageView = new ImageView(context);
 //            }else{
 //                mImageView = (ImageView) convertView;
 //            }
@@ -297,19 +301,20 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
 
 
             //给ImageView设置Tag,这里已经是司空见惯了
-            mImageView.setTag(mImageUrl);
+            mImageView.setTag(imgVo.getImg());
             /*******************************去掉下面这几行试试是什么效果****************************/
-            Bitmap bitmap = mImageDownLoader.showCacheBitmap(mImageUrl.replaceAll("[^\\w]", ""));
+            Bitmap bitmap = mImageDownLoader.showCacheBitmap(imgVo.getImg().replaceAll("[^\\w]", ""));
             if(bitmap != null){
                 mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
                 int bHeight =(int) (bitmap.getHeight()*((float)width/(float)bitmap.getWidth()));
-                Log.i("img",mImageUrl+",1height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
+                Log.i("img",imgVo.getImg()+",1height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
                 mImageView.setLayoutParams(new GridView.LayoutParams(width, bHeight<1?200:bHeight ));
                 mImageView.setImageBitmap(bitmap);
 
             }else{
+                int bHeight =(int) (imgVo.getHeight()*((float)width/(float)imgVo.getWidth()));
                 mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mImageView.setLayoutParams(new GridView.LayoutParams(width, 1000));
+                mImageView.setLayoutParams(new GridView.LayoutParams(width, bHeight<1?200:bHeight));
                 mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img));
             }
             /**********************************************************************************/
@@ -330,13 +335,15 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
      */
     private void showImage(int firstVisibleItem, int visibleItemCount){
         Bitmap bitmap = null;
-        for(int i=firstVisibleItem; i<firstVisibleItem + visibleItemCount && i < imageThumbUrls.length; i++){
-            String mImageUrl = imageThumbUrls[i];
-            final ImageView mImageView = (ImageView) mGridView.findViewWithTag(mImageUrl);
+        ImagerVO imgVo = null;
+        for(int i=firstVisibleItem; i<firstVisibleItem + visibleItemCount && i < images.size(); i++){
+            imgVo = images.get(i);
+            //String mImageUrl = .getImg();
+            final ImageView mImageView = (ImageView) mGridView.findViewWithTag(imgVo.getImg());
             if (mImageView == null){
                 return;
             }
-            bitmap = mImageDownLoader.downloadImage(mImageUrl, new ImageLoader.onImageLoaderListener() {
+            bitmap = mImageDownLoader.downloadImage(imgVo.getImg(), new ImageLoader.onImageLoaderListener() {
                 @Override
                 public void onImageLoader(Bitmap bitmap, String url) {
                     if(mImageView != null && bitmap != null){
@@ -350,54 +357,20 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             if(bitmap != null){
                 int bHeight =(int) (bitmap.getHeight()*((float)width/(float)bitmap.getWidth()));
                 mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                Log.i("img",mImageUrl+",2height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
+                Log.i("img",imgVo.getImg()+",2height:"+bHeight+",bitmap.getHeight():"+bitmap.getHeight()+",bitmap.getWidth():"+bitmap.getWidth()+",width:"+width);
                 mImageView.setLayoutParams(new GridView.LayoutParams(width, bHeight<1?200:bHeight ));
                 mImageView.setImageBitmap(bitmap);
                 //mImageView.setImageBitmap(bitmap);
             }else{
+                int bHeight =(int) (imgVo.getHeight()*((float)width/(float)imgVo.getWidth()));
                 mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mImageView.setLayoutParams(new GridView.LayoutParams(width, 1000));
+                mImageView.setLayoutParams(new GridView.LayoutParams(width,  bHeight<1?200:bHeight));
                 mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.default_img));
             }
         }
     }
 
-    public String convertStreamToString(InputStream is) {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-        StringBuilder sb = new StringBuilder();
-
-
-
-        String line = null;
-
-        try {
-
-            while ((line = reader.readLine()) != null) {
-
-                sb.append(line + "/n");
-
-            }
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            try {
-
-                is.close();
-
-            } catch (IOException e) {
-
-                e.printStackTrace();
-            }
-        }
-        return sb.toString();
-
-    }
 
     /**
      * 取消下载任务
