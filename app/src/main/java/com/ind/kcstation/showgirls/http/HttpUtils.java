@@ -40,6 +40,7 @@ public class HttpUtils {
         //if (HttpUtils.httpUtils == null){
             //HttpUtils.httpUtils = new HttpUtils(httpFuncion,context);
         //}
+        //this part should establish a hashtable to direct key of url with value
         return new HttpUtils(httpFuncion,context);
     }
 

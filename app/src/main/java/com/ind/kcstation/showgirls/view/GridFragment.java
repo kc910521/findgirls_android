@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import com.ind.kcstation.showgirls.MainActivity;
 import com.ind.kcstation.showgirls.R;
 import com.ind.kcstation.showgirls.utils.ImageAdapter;
 
@@ -36,11 +37,13 @@ public class GridFragment extends Fragment {
         this.initView(vw);
         return vw;
     }
-
+    //"http://ck.lchbl.com:3000/item/list/p/"+this.getPager(NOW_PAGE_IDX++)
+    private int NOW_PAGE_IDX = 0;
     private void initView(View view){
         Log.i("init","init view");
         mGridView = (GridView) view.findViewById(R.id.gv_img_main);
-        mImageAdapter = new ImageAdapter(view.getContext(), mGridView, refeshGridview);
+        mImageAdapter = new ImageAdapter(view.getContext(), mGridView, refeshGridview,"http://ck.lchbl.com:3000/item/list/p/"+this.getPager(NOW_PAGE_IDX++));
+        Log.i("mygod","initView+"+NOW_PAGE_IDX);
         mGridView.setAdapter(mImageAdapter);
         mImageAdapter.notifyDataSetChanged();
         mImageAdapter.appendResource();
@@ -56,13 +59,20 @@ public class GridFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             //重新刷新gridview区域
-            mImageAdapter = new ImageAdapter(mGridView.getContext(), mGridView, this);
+            mImageAdapter = new ImageAdapter(mGridView.getContext(), mGridView, this,"http://ck.lchbl.com:3000/item/list/p/"+getPager(NOW_PAGE_IDX++));
+            Log.i("mygod","handleMessage+"+NOW_PAGE_IDX);
             mGridView.setAdapter(mImageAdapter);
             mImageAdapter.notifyDataSetChanged();
             super.handleMessage(msg);
         }
     };
 
+    private int getPager(int pgIdx){
+        if (MainActivity.pageArrays.length > pgIdx){
+            return MainActivity.pageArrays[pgIdx];
+        }
+        return 1;
+    }
     @Override
     public void setMenuVisibility(boolean menuVisible) {
         super.setMenuVisibility(menuVisible);

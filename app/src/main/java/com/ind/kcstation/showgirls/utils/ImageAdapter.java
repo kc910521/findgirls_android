@@ -84,31 +84,16 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
      * 一屏中所有item的个数
      */
     private int mVisibleItemCount;
-    /**
-     *             "http://pic1.win4000.com/wallpaper/3/512ec5a1c9d1e.jpg",
-     "http://imgsrc.baidu.com/forum/pic/item/2cf5e0fe9925bc3121ee29195edf8db1ca1370fb.jpg",
-     "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000" +
-     "&sec=1474793859&di=d6741cae026e2dff3123e158dd8287af&src=http://i0.sinaimg.cn/gm/2014/1216/U4341P115DT20141216145353.jpg",
-     "http://www.k73.com/up/allimg/120510/22-1205101003133P.jpg",
-     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-     "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
-     "http://www.sywnm.com/imgall/obuwgmzopjug63thonxxkltdn5wq/image/380530a5639c114b086.jpg",
-     "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
-     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-     "http://img3.imgtn.bdimg.com/it/u=1703415741,703164552&fm=21&gp=0.jpg",
-     "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg",
-     "http://image.tianjimedia.com/uploadImages/2012/229/72LDDRUQ87SC.jpg"
-     */
-    //public static String [] imageThumbUrls = {};
 
     public static List<ImagerVO> images = new ArrayList<ImagerVO>();
 
-    public static int NOW_PAGE_IDX = 0;
+    //public int NOW_PAGE_IDX = 0;
+    private String resourceUrl = null;
 
-    public ImageAdapter(Context context, GridView mGridView,Handler refeshGridview){
+
+    public ImageAdapter(Context context, GridView mGridView,Handler refeshGridview,String resourceUrl){
+        this.resourceUrl = resourceUrl;
+        Log.i("mygod","init111");
         this.context = context;
         this.mGridView = mGridView;
         //this.imageThumbUrls = imageThumbUrls;
@@ -149,11 +134,11 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 String imgSource = HttpUtils.convertStreamToString(isis);
 
                 //imgSource = replaceBlank(imgSource);
-                System.out.println("11:"+imgSource+"!!");
                 List<ImagerVO> imgvos = JSONArray.parseArray(imgSource,ImagerVO.class);
                 if (imgvos != null && !imgvos.isEmpty()){
-                    images = new ArrayList<ImagerVO>(imgvos.size());
+                    images = new ArrayList<ImagerVO>(imgvos.size()*2);
                     images.addAll(imgvos);
+                    Log.i("mygod","images.addAll(imgvos):"+imgvos.size());
 /*                    imageThumbUrls = new String[imgvos.size()];
                     for (int idx = 0; idx < imgvos.size(); idx ++){
                         imageThumbUrls[idx] = imgvos.get(idx).getImg();
@@ -171,22 +156,17 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                 msg.setData(bd);
                 context = _context;
                 //Toast.makeText(context,imgSource+"67777777",Toast.LENGTH_SHORT).show();
-                refeshGridview.sendMessage(msg);
 
+                refeshGridview.sendMessage(msg);
                 Looper.loop();
+
                 Log.i("check4","doWork over");
                 return null;
             }
         },context);
-        hu.getHttp("http://ck.lchbl.com:3000/item/list/p/"+this.getPager(NOW_PAGE_IDX++));
+        hu.getHttp(this.resourceUrl);
+        //hu.getHttp("http://ck.lchbl.com:3000/item/list/p/"+this.getPager(NOW_PAGE_IDX++));
         //ImageAdapter.imageThumbUrls = moreImageUrls;
-    }
-
-    private int getPager(int pgIdx){
-        if (MainActivity.pageArrays.length > pgIdx){
-            return MainActivity.pageArrays[pgIdx];
-        }
-        return 1;
     }
 
     @Override
@@ -221,12 +201,13 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     @Override
     public int getCount() {
         // 后面多加一个尾巴，所以适配器长度得加一
+        Log.i("mygod","size:"+images.size());
         return images.size()+1;
     }
 
     @Override
     public Object getItem(int position) {
-        Log.i("pic","pos:"+position);
+        Log.i("mygod","get:"+position);
         return images.get(position);
     }
 
