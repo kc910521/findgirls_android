@@ -85,13 +85,14 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
      */
     private int mVisibleItemCount;
 
-    public static List<ImagerVO> images = new ArrayList<ImagerVO>();
+    public List<ImagerVO> images ;
 
     //public int NOW_PAGE_IDX = 0;
     private String resourceUrl = null;
 
 
     public ImageAdapter(Context context, GridView mGridView,Handler refeshGridview,String resourceUrl){
+        images = new ArrayList<ImagerVO>();
         this.resourceUrl = resourceUrl;
         Log.i("mygod","init111");
         this.context = context;
@@ -104,7 +105,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
         this.inflater = LayoutInflater.from(context);
     }
     HttpUtils hu = null;
-    public synchronized void appendResource(){
+    public synchronized void appendResource(final boolean needRenew){
 //        String [] newUrls = new String[moreImageUrls.length+imageThumbUrls.length];
 //        int aIdx = 0;
 //        for (String url : this.imageThumbUrls){
@@ -152,14 +153,19 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                     e.printStackTrace();
                 }
 
-                bd.putCharSequence("key",imgSource);
-                msg.setData(bd);
+//                bd.putCharSequence("key",imgSource);
+//                msg.setData(bd);
+                if (needRenew){//************need be enum
+                    msg.arg1 = 1;
+                }else{
+                    msg.arg1 = 0;
+                }
                 context = _context;
                 //Toast.makeText(context,imgSource+"67777777",Toast.LENGTH_SHORT).show();
 
                 refeshGridview.sendMessage(msg);
                 Looper.loop();
-
+                //notifyDataSetChanged();
                 Log.i("check4","doWork over");
                 return null;
             }
@@ -256,7 +262,7 @@ public class ImageAdapter extends BaseAdapter implements AbsListView.OnScrollLis
                     @Override
                     public void onClick(View v) {
                         //Toast.makeText(v.getContext(),"in working2",Toast.LENGTH_SHORT).show();
-                        appendResource();
+                        appendResource(true);
                     }
                 });
             //需要修改此部分

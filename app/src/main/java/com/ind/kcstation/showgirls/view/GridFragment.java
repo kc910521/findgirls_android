@@ -45,8 +45,8 @@ public class GridFragment extends Fragment {
         mImageAdapter = new ImageAdapter(view.getContext(), mGridView, refeshGridview,"http://ck.lchbl.com:3000/item/list/p/"+this.getPager(NOW_PAGE_IDX++));
         Log.i("mygod","initView+"+NOW_PAGE_IDX);
         mGridView.setAdapter(mImageAdapter);
-        mImageAdapter.notifyDataSetChanged();
-        mImageAdapter.appendResource();
+        //mImageAdapter.notifyDataSetChanged();
+        mImageAdapter.appendResource(false);
     }
 
     @Override
@@ -59,9 +59,13 @@ public class GridFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             //重新刷新gridview区域
-            mImageAdapter = new ImageAdapter(mGridView.getContext(), mGridView, this,"http://ck.lchbl.com:3000/item/list/p/"+getPager(NOW_PAGE_IDX++));
-            Log.i("mygod","handleMessage+"+NOW_PAGE_IDX);
-            mGridView.setAdapter(mImageAdapter);
+            Log.i("mygod","handleMessage+"+NOW_PAGE_IDX+",and "+msg.arg1);
+            if (msg.arg1 == 1){
+                //need renew
+                mImageAdapter = new ImageAdapter(mGridView.getContext(), mGridView, this,"http://ck.lchbl.com:3000/item/list/p/"+getPager(NOW_PAGE_IDX++));
+                mGridView.setAdapter(mImageAdapter);
+                mImageAdapter.appendResource(false);
+            }
             mImageAdapter.notifyDataSetChanged();
             super.handleMessage(msg);
         }

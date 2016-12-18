@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import com.ind.kcstation.showgirls.MainActivity;
 import com.ind.kcstation.showgirls.R;
 import com.ind.kcstation.showgirls.utils.ImageAdapter;
 
@@ -31,20 +32,20 @@ public class RGridFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //View vw = inflater.inflate(R.layout.content_main_2,container,false);
-        View vw = inflater.inflate(R.layout.content_main_2,container,false);
-        //this.initView(vw);
+        View vw = inflater.inflate(R.layout.content_main,container,false);
+        this.initView(vw);
         return vw;
     }
-
+    //"http://ck.lchbl.com:3000/item/list/p/"+this.getPager(NOW_PAGE_IDX++)
+    private int NOW_PAGE_IDX = 0;
     private void initView(View view){
         Log.i("init","init view");
         mGridView = (GridView) view.findViewById(R.id.gv_img_main);
         mImageAdapter = new ImageAdapter(view.getContext(), mGridView, refeshGridview,"http://ck.lchbl.com:3000/item/list/p/1/npp/10/type/2");
-        Log.i("mygod","initView+RRRRR");
+        Log.i("mygod","initView+"+NOW_PAGE_IDX);
         mGridView.setAdapter(mImageAdapter);
-        mImageAdapter.notifyDataSetChanged();
-        mImageAdapter.appendResource();
+        //mImageAdapter.notifyDataSetChanged();
+        mImageAdapter.appendResource(false);
     }
 
     @Override
@@ -57,20 +58,26 @@ public class RGridFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             //重新刷新gridview区域
-            mImageAdapter = new ImageAdapter(mGridView.getContext(), mGridView, this,"http://ck.lchbl.com:3000/item/list/p/1/npp/10/type/2");
-            mGridView.setAdapter(mImageAdapter);
+            Log.i("mygod","handleMessage+"+NOW_PAGE_IDX+",and "+msg.arg1);
+            if (msg.arg1 == 1){
+                //need renew
+                mImageAdapter = new ImageAdapter(mGridView.getContext(), mGridView, this,"http://ck.lchbl.com:3000/item/list/p/1/npp/10/type/2");
+                mGridView.setAdapter(mImageAdapter);
+                mImageAdapter.appendResource(false);
+            }
             mImageAdapter.notifyDataSetChanged();
             super.handleMessage(msg);
         }
     };
 
+    private int getPager(int pgIdx){
+        return 1;
+    }
     @Override
     public void setMenuVisibility(boolean menuVisible) {
         super.setMenuVisibility(menuVisible);
         if (this.getView() != null){
-            this.getView().setVisibility(menuVisible? View.VISIBLE:View.GONE);
+            this.getView().setVisibility(menuVisible?View.VISIBLE:View.GONE);
         }
     }
-
-
 }
